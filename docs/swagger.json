@@ -1,0 +1,488 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST APIs exposed by my health services platform",
+        "title": "My Health Service APIs",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:7081",
+    "basePath": "/v1",
+    "paths": {
+        "/users/:id/glucose-records": {
+            "post": {
+                "description": "Post a new glucose level measurement",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "glucose"
+                ],
+                "summary": "CreateGlucoseRecord",
+                "operationId": "create-glucose-record",
+                "parameters": [
+                    {
+                        "description": "Post Glucose Record",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.createGlucoseRecordRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.createGlucoseRecordResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:id/glucose-records/:recordUuid": {
+            "get": {
+                "description": "Get a glucose measurement record of a user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "glucose"
+                ],
+                "summary": "Get Glucose Measurement Details.",
+                "operationId": "getGlucoseRecord",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Glucose record UUID",
+                        "name": "recordUuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.glucoseRecordsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:id/glucose-records/next-changes-token": {
+            "post": {
+                "description": "Stores device's next changes token of a user's glucose records.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "glucose"
+                ],
+                "summary": "Stores device's next changes token of a user's glucose records.",
+                "operationId": "postNextChangesToken",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "next changes token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.saveNextChangesTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:id/glucose-records/sync-complete": {
+            "post": {
+                "description": "Marks sync as completed for a user's glucose records data on device.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "glucose"
+                ],
+                "summary": "Marks sync as completed for a user's glucose records data on device.",
+                "operationId": "postSyncComplete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:id/glucose-records/unsynced": {
+            "get": {
+                "description": "Get glucose records which are new/updated since last sync time.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "glucose"
+                ],
+                "summary": "Get glucose records which are new/updated since last sync time.",
+                "operationId": "getNewOrUpdatedRecords",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.glucoseRecordsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.APIError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "common.APIError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "$ref": "#/definitions/common.ErrorCodeType"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.ErrorCodeType": {
+            "type": "integer",
+            "enum": [
+                1000,
+                1001,
+                1002,
+                1003,
+                1004,
+                1005,
+                1006,
+                1007,
+                1008,
+                1009,
+                1010
+            ],
+            "x-enum-varnames": [
+                "ErrUnableToParseRequestBody",
+                "ErrUnknownDatabaseError",
+                "ErrTranslationService",
+                "ErrInvalidUserID",
+                "ErrCreateGlucoseRecord",
+                "ErrInvalidRecordUUID",
+                "ErrRecordUUIDNotFound",
+                "ErrGetGlucoseRecord",
+                "ErrMarkSyncComplete",
+                "ErrSaveNextChangesToken",
+                "ErrGetUnsyncedGlucoseRecords"
+            ]
+        },
+        "entity.GlucoseLevelType": {
+            "type": "integer",
+            "enum": [
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "MilliMolesPerLiter",
+                "MilliGramsPerDeciLiter"
+            ]
+        },
+        "entity.GlucoseRecord": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deviceRecordId": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "number"
+                },
+                "levelType": {
+                    "$ref": "#/definitions/entity.GlucoseLevelType"
+                },
+                "meal": {
+                    "$ref": "#/definitions/entity.MealType"
+                },
+                "offsetId": {
+                    "type": "string"
+                },
+                "recordUuid": {
+                    "type": "string"
+                },
+                "relationToMeal": {
+                    "$ref": "#/definitions/entity.RelationToMealType"
+                },
+                "specimenSource": {
+                    "$ref": "#/definitions/entity.SpecimenSourceType"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "zoneId": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.MealType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "x-enum-varnames": [
+                "UnknownMeal",
+                "Breakfast",
+                "Lunch",
+                "Dinner",
+                "Snack"
+            ]
+        },
+        "entity.RelationToMealType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "x-enum-varnames": [
+                "UnknownRelation",
+                "General",
+                "Fasting",
+                "BeforeMeal",
+                "AfterMeal"
+            ]
+        },
+        "entity.SpecimenSourceType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-varnames": [
+                "UnknownSource",
+                "InterstitialFluid",
+                "CapillaryBlood",
+                "Plasma",
+                "Serum",
+                "Tears",
+                "WholeBlood"
+            ]
+        },
+        "v1.createGlucoseRecordRequest": {
+            "type": "object",
+            "required": [
+                "level",
+                "levelType",
+                "meal",
+                "offsetID",
+                "relationToMeal",
+                "specimenSource",
+                "time",
+                "zoneId"
+            ],
+            "properties": {
+                "deviceRecordId": {
+                    "type": "string",
+                    "minLength": 5
+                },
+                "level": {
+                    "type": "number"
+                },
+                "levelType": {
+                    "type": "integer",
+                    "maximum": 2,
+                    "minimum": 1
+                },
+                "meal": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "offsetID": {
+                    "type": "string"
+                },
+                "relationToMeal": {
+                    "type": "integer",
+                    "maximum": 4,
+                    "minimum": 0
+                },
+                "specimenSource": {
+                    "type": "integer",
+                    "maximum": 6,
+                    "minimum": 0
+                },
+                "time": {
+                    "type": "string"
+                },
+                "zoneId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.createGlucoseRecordResponse": {
+            "type": "object",
+            "properties": {
+                "recordId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.glucoseRecordsResponse": {
+            "type": "object",
+            "properties": {
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.GlucoseRecord"
+                    }
+                }
+            }
+        },
+        "v1.saveNextChangesTokenRequest": {
+            "type": "object",
+            "required": [
+                "deviceRecordId"
+            ],
+            "properties": {
+                "deviceRecordId": {
+                    "type": "string",
+                    "minLength": 5
+                }
+            }
+        }
+    }
+}

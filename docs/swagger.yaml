@@ -1,0 +1,346 @@
+basePath: /v1
+definitions:
+  common.APIError:
+    properties:
+      code:
+        $ref: '#/definitions/common.ErrorCodeType'
+      message:
+        type: string
+    type: object
+  common.ErrorCodeType:
+    enum:
+    - 1000
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1005
+    - 1006
+    - 1007
+    - 1008
+    - 1009
+    - 1010
+    type: integer
+    x-enum-varnames:
+    - ErrUnableToParseRequestBody
+    - ErrUnknownDatabaseError
+    - ErrTranslationService
+    - ErrInvalidUserID
+    - ErrCreateGlucoseRecord
+    - ErrInvalidRecordUUID
+    - ErrRecordUUIDNotFound
+    - ErrGetGlucoseRecord
+    - ErrMarkSyncComplete
+    - ErrSaveNextChangesToken
+    - ErrGetUnsyncedGlucoseRecords
+  entity.GlucoseLevelType:
+    enum:
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - MilliMolesPerLiter
+    - MilliGramsPerDeciLiter
+  entity.GlucoseRecord:
+    properties:
+      createdAt:
+        type: string
+      deviceRecordId:
+        type: string
+      level:
+        type: number
+      levelType:
+        $ref: '#/definitions/entity.GlucoseLevelType'
+      meal:
+        $ref: '#/definitions/entity.MealType'
+      offsetId:
+        type: string
+      recordUuid:
+        type: string
+      relationToMeal:
+        $ref: '#/definitions/entity.RelationToMealType'
+      specimenSource:
+        $ref: '#/definitions/entity.SpecimenSourceType'
+      time:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+      zoneId:
+        type: string
+    type: object
+  entity.MealType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - UnknownMeal
+    - Breakfast
+    - Lunch
+    - Dinner
+    - Snack
+  entity.RelationToMealType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - UnknownRelation
+    - General
+    - Fasting
+    - BeforeMeal
+    - AfterMeal
+  entity.SpecimenSourceType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - UnknownSource
+    - InterstitialFluid
+    - CapillaryBlood
+    - Plasma
+    - Serum
+    - Tears
+    - WholeBlood
+  v1.createGlucoseRecordRequest:
+    properties:
+      deviceRecordId:
+        minLength: 5
+        type: string
+      level:
+        type: number
+      levelType:
+        maximum: 2
+        minimum: 1
+        type: integer
+      meal:
+        maximum: 4
+        minimum: 0
+        type: integer
+      offsetID:
+        type: string
+      relationToMeal:
+        maximum: 4
+        minimum: 0
+        type: integer
+      specimenSource:
+        maximum: 6
+        minimum: 0
+        type: integer
+      time:
+        type: string
+      zoneId:
+        type: string
+    required:
+    - level
+    - levelType
+    - meal
+    - offsetID
+    - relationToMeal
+    - specimenSource
+    - time
+    - zoneId
+    type: object
+  v1.createGlucoseRecordResponse:
+    properties:
+      recordId:
+        type: string
+    type: object
+  v1.glucoseRecordsResponse:
+    properties:
+      records:
+        items:
+          $ref: '#/definitions/entity.GlucoseRecord'
+        type: array
+    type: object
+  v1.saveNextChangesTokenRequest:
+    properties:
+      deviceRecordId:
+        minLength: 5
+        type: string
+    required:
+    - deviceRecordId
+    type: object
+host: localhost:7081
+info:
+  contact: {}
+  description: REST APIs exposed by my health services platform
+  title: My Health Service APIs
+  version: "1.0"
+paths:
+  /users/:id/glucose-records:
+    post:
+      consumes:
+      - application/json
+      description: Post a new glucose level measurement
+      operationId: create-glucose-record
+      parameters:
+      - description: Post Glucose Record
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.createGlucoseRecordRequest'
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.createGlucoseRecordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.APIError'
+      summary: CreateGlucoseRecord
+      tags:
+      - glucose
+  /users/:id/glucose-records/:recordUuid:
+    get:
+      description: Get a glucose measurement record of a user.
+      operationId: getGlucoseRecord
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Glucose record UUID
+        in: path
+        name: recordUuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.glucoseRecordsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.APIError'
+      summary: Get Glucose Measurement Details.
+      tags:
+      - glucose
+  /users/:id/glucose-records/next-changes-token:
+    post:
+      consumes:
+      - application/json
+      description: Stores device's next changes token of a user's glucose records.
+      operationId: postNextChangesToken
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: next changes token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.saveNextChangesTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.APIError'
+      summary: Stores device's next changes token of a user's glucose records.
+      tags:
+      - glucose
+  /users/:id/glucose-records/sync-complete:
+    post:
+      description: Marks sync as completed for a user's glucose records data on device.
+      operationId: postSyncComplete
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.APIError'
+      summary: Marks sync as completed for a user's glucose records data on device.
+      tags:
+      - glucose
+  /users/:id/glucose-records/unsynced:
+    get:
+      description: Get glucose records which are new/updated since last sync time.
+      operationId: getNewOrUpdatedRecords
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.glucoseRecordsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.APIError'
+      summary: Get glucose records which are new/updated since last sync time.
+      tags:
+      - glucose
+swagger: "2.0"

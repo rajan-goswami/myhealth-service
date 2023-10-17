@@ -1,0 +1,15 @@
+app:
+  name: 'myhealth-service'
+  version: '1.0.0'
+
+http:
+  port: '7081'
+
+logger:
+  log_level: 'debug'
+
+postgres:
+  pool_max: 2
+
+security:
+  api_key: '2d4d5aa8-d1fa-47e8-a36b-b0f25782a261'
